@@ -1,9 +1,7 @@
 ﻿using ISO;
 using ISO8583;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 
 class Programs
 {
@@ -20,6 +18,7 @@ class Programs
             {
                 if (int.TryParse(option, out msgRequired))
                 {
+                   
                     Console.WriteLine(MessageFactory.ConstructMessage((RequiredMsg)msgRequired));
                 }
                 else

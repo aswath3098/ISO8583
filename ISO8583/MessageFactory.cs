@@ -3,9 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Remoting.Messaging;
+
 using System.Text;
+using System.Threading;
 using System.Web;
 using static Programs;
 
@@ -34,10 +34,16 @@ namespace ISO
                     message = SignOff();
                     break;
                 case RequiredMsg.BalanceInquiry:
-                    message = BalanceInquiry();
+                    string track2Data = "1234567890123456=22021015432112345678";
+                    string pin = "1234"; // Replace with actual PIN
+                    string key = "ED2307743BAFC53FA0315C89116BCABF";
+                    message = BalanceInquiry(track2Data, pin, key);
                     break;
                 case RequiredMsg.CashWithdrawal:
-                    message = CashWithdrawal();
+                    string track2Data1 = "1234567890123456=22021015432112345678";
+                    string pin1 = "1234"; // Replace with actual PIN
+                    string key1 = "ED2307743BAFC53FA0315C89116BCABF";
+                    message = CashWithdrawal(track2Data1,pin1,key1);
                     break;
                 default:
                     Console.Write("Option invalid.");
@@ -47,13 +53,27 @@ namespace ISO
             return message;
         }
 
-        private static string BalanceInquiry()
+        private static string BalanceInquiry(string track2Data, string pin, string key)
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
+            string pinBlock = PinPanBlockCalculator.CalculatePinBlock(pin);
+            string panBlock = PinPanBlockCalculator.CalculatePanBlock(track2Data);
+            string pinPanBlock = PinPanBlockCalculator.CalculatePinPanBlock(pinBlock, panBlock);
+            byte[] dataBytes = PinPanBlockCalculator.HexStringToByteArray(pinPanBlock);
+            byte[] keyBytes = PinPanBlockCalculator.HexStringToByteArray(key);
+            byte[] encryptedData = PinPanBlockCalculator.Encrypt3DES(dataBytes, keyBytes);
 
+            // Convert the encrypted byte array to a hexadecimal string
+            string encryptedHex = PinPanBlockCalculator.ByteArrayToHexString(encryptedData);
+            // Print the encrypted result
+            Console.WriteLine("The Pinblock is:" + pinBlock);
+            Console.WriteLine("The Panblock is:" + panBlock);
+            Console.WriteLine("The Non-Encrypted PinPan Block is:" + pinPanBlock);
+            Console.WriteLine("Encrypted Data: " + encryptedHex);
+            
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1200", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = "5889678367142376", FieldLengthRepresentation = LengthType.LL });
+            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = panBlock, FieldLengthRepresentation = LengthType.LL });
             requiredDataelements.Add(new DataElement { Id = "DE-003", PositionInTheMsg = 3, Name = "Processing Code", Value = "310000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-004", PositionInTheMsg = 4, Name = "Transaction Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-005", PositionInTheMsg = 5, Name = "Reconciliation Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
@@ -75,20 +95,40 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-041", PositionInTheMsg = 41, Name = "Card Acceptor Terminal Identification", Value = "A1#9B$5C&7*1D3EFGH4I5J6K", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-042", PositionInTheMsg = 42, Name = "Card Acceptor Identification Code", Value = "A1#9B$5C&7*1D3EFGH4I5J6", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-043", PositionInTheMsg = 43, Name = "Card Acceptor Name/Location", Value = "Terminal Owner\\Terminal Street\\Terminal City\\12345\\Region\\USA", FieldLengthRepresentation = LengthType.LL });
-            requiredDataelements.Add(new DataElement { Id = "DE-048", PositionInTheMsg = 48, Name = "keerthana", Value = "1234$^&ZXDYTFFG", FieldLengthRepresentation = LengthType.LLL });
+            requiredDataelements.Add(new DataElement { Id = "DE-048", PositionInTheMsg = 48, Name = "Aswath", Value = "1234$^&ZXDYTFFG", FieldLengthRepresentation = LengthType.LLL });
             requiredDataelements.Add(new DataElement { Id = "DE-049", PositionInTheMsg = 49, Name = "Transaction Currency Code", Value = "784", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = "11010110", FieldLengthRepresentation = LengthType.Fixed });
+            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = pinBlock+pinPanBlock+ encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
+            
+
             return TransactionMessage(requiredDataelements);
+
         }
 
-        private static string CashWithdrawal()
+        private static string CashWithdrawal(string track2Data, string pin,string key)
         {
+
             List<DataElement> requiredDataelements = new List<DataElement>();
+            string pinBlock = PinPanBlockCalculator.CalculatePinBlock(pin);
+            string panBlock = PinPanBlockCalculator.CalculatePanBlock(track2Data);
+            string pinPanBlock = PinPanBlockCalculator.CalculatePinPanBlock(pinBlock, panBlock);
+            byte[] dataBytes = PinPanBlockCalculator.HexStringToByteArray(pinPanBlock);
+            byte[] keyBytes = PinPanBlockCalculator.HexStringToByteArray(key);
+            byte[] encryptedData = PinPanBlockCalculator.Encrypt3DES(dataBytes, keyBytes);
+
+            // Convert the encrypted byte array to a hexadecimal string
+            string encryptedHex = PinPanBlockCalculator.ByteArrayToHexString(encryptedData);
+
+            // Print the encrypted result
+            Console.WriteLine("The Pinblock is:" + pinBlock);
+            Console.WriteLine("The Panblock is:" + panBlock);
+            Console.WriteLine("The Non-Encrypted PinPan Block is:" + pinPanBlock);
+            Console.WriteLine("Encrypted Data: " + encryptedHex);
+
 
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1200", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = "5889678367142376", FieldLengthRepresentation = LengthType.LL });
+            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = panBlock, FieldLengthRepresentation = LengthType.LL });
             requiredDataelements.Add(new DataElement { Id = "DE-003", PositionInTheMsg = 3, Name = "Processing Code", Value = "010000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-004", PositionInTheMsg = 4, Name = "Transaction Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-005", PositionInTheMsg = 5, Name = "Reconciliation Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
@@ -114,7 +154,8 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-046", PositionInTheMsg = 46, Name = "Fee Amounts", Value = "701USD000100.50234.56001USD", FieldLengthRepresentation = LengthType.LLL });
             requiredDataelements.Add(new DataElement { Id = "DE-049", PositionInTheMsg = 49, Name = "Transaction Currency Code", Value = "784", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = "11010110", FieldLengthRepresentation = LengthType.Fixed });
+            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = pinBlock + pinPanBlock + encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
+            
             return TransactionMessage(requiredDataelements);
         }
 
