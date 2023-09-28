@@ -98,7 +98,7 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-048", PositionInTheMsg = 48, Name = "Aswath", Value = "1234$^&ZXDYTFFG", FieldLengthRepresentation = LengthType.LLL });
             requiredDataelements.Add(new DataElement { Id = "DE-049", PositionInTheMsg = 49, Name = "Transaction Currency Code", Value = "784", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = pinBlock+pinPanBlock+ encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
+            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
             
 
             return TransactionMessage(requiredDataelements);

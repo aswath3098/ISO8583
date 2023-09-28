@@ -9,27 +9,46 @@ namespace ISO
         public static string CalculatePinBlock(string pin)
         {
             string pinblock = "";
-            int len = pin.Length;
-            if (len == 4)
+            int len = pin.Length; 
+            if (len >= 10)
             {
-                pinblock = "04" + pin;
+                string lenn = len.ToString("X");
+                pinblock = "0" + lenn + pin;
                 pinblock = pinblock.PadRight(16, 'F');
-                return pinblock;
             }
-            else if (len == 12)
+            else
             {
-                pinblock = "0C" + pin;
+                pinblock = "0" + len + pin;
                 pinblock = pinblock.PadRight(16, 'F');
-                return pinblock;
+
             }
             return pinblock;
         }
 
         public static string CalculatePanBlock(string track2Data)
         {
-            string panblock = track2Data.Substring(4, 12);
-            panblock = panblock.PadLeft(16, '0');
-            return panblock;
+            // Split the track2Data by '=' to extract the portion before '='
+            string[] parts = track2Data.Split('=');
+            string panblock = parts[0].Substring(1);
+            panblock = panblock.Substring(0, panblock.Length - 1);
+            int len = panblock.Length;
+            if (len <= 12)
+                {
+                    // If the length is less than or equal to 12, pad with '0' on the left
+                    panblock = panblock.PadLeft(16, '0');
+                }
+                else if (len >= 13)
+                {
+                    // If the length is greater than or equal to 13, take the last 12 characters and add '0000' in front
+                    panblock = panblock.Substring(len - 12);
+                    panblock = "0000" + panblock;
+                }
+
+                return panblock;
+            
+
+            // Handle invalid track2Data format
+            throw new ArgumentException("Invalid track2Data format");
         }
 
         public static string CalculatePinPanBlock(string pinblock, string panblock)
