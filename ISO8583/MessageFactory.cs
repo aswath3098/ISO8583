@@ -73,7 +73,7 @@ namespace ISO
             
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1200", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = panBlock, FieldLengthRepresentation = LengthType.LL });
+            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = "1234567890123456", FieldLengthRepresentation = LengthType.LL });
             requiredDataelements.Add(new DataElement { Id = "DE-003", PositionInTheMsg = 3, Name = "Processing Code", Value = "310000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-004", PositionInTheMsg = 4, Name = "Transaction Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-005", PositionInTheMsg = 5, Name = "Reconciliation Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
@@ -99,8 +99,6 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-049", PositionInTheMsg = 49, Name = "Transaction Currency Code", Value = "784", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
-            
-
             return TransactionMessage(requiredDataelements);
 
         }
@@ -128,7 +126,7 @@ namespace ISO
 
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1200", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = panBlock, FieldLengthRepresentation = LengthType.LL });
+            requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = "1234567890123456", FieldLengthRepresentation = LengthType.LL });
             requiredDataelements.Add(new DataElement { Id = "DE-003", PositionInTheMsg = 3, Name = "Processing Code", Value = "010000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-004", PositionInTheMsg = 4, Name = "Transaction Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-005", PositionInTheMsg = 5, Name = "Reconciliation Amount", Value = "000000100000", FieldLengthRepresentation = LengthType.Fixed });
@@ -154,7 +152,7 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-046", PositionInTheMsg = 46, Name = "Fee Amounts", Value = "701USD000100.50234.56001USD", FieldLengthRepresentation = LengthType.LLL });
             requiredDataelements.Add(new DataElement { Id = "DE-049", PositionInTheMsg = 49, Name = "Transaction Currency Code", Value = "784", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
-            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = pinBlock + pinPanBlock + encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
+            requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
             
             return TransactionMessage(requiredDataelements);
         }
