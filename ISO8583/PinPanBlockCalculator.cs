@@ -9,43 +9,50 @@ namespace ISO
         public static string CalculatePinBlock(string pin)
         {
             string pinblock = "";
-            int len = pin.Length; 
-            if (len >= 10)
+            int len = pin.Length;
+            pinblock = ("0" + len.ToString("X") + pin);
+            pinblock = pinblock.PadRight(16, 'F');
+
+            return pinblock;
+        }
+        public static string CalculatePanBlock(string track2Data)
+        {
+
+            // Split the track2Data by '=' to extract the portion before '='
+
+            String clearPinBlock = string.Empty;
+            string pan = string.Empty;
+
+            var index = track2Data.IndexOf('=');
+            //Console.WriteLine(index);
+            if (index < 0)
             {
-                string lenn = len.ToString("X");
-                pinblock = "0" + lenn + pin;
-                pinblock = pinblock.PadRight(16, 'F');
+                index = track2Data.IndexOf('D');
+            }
+            if (index < 0)
+            {
+                Console.WriteLine("Track2 not Valid");
+                return null;
+            }
+
+            pan = track2Data.Substring(0, index);
+            //Console.WriteLine(pan);
+            pan = pan.PadRight(16, '0');
+
+            string account = pan.Substring(0, pan.Length - 1);
+            account = account.Substring(account.Length - 12, 12);
+            if (account.Length < 12)
+            {
+                Console.WriteLine("Account must be equal to greater than 12");
+                return null;
             }
             else
             {
-                pinblock = "0" + len + pin;
-                pinblock = pinblock.PadRight(16, 'F');
+                clearPinBlock = account.PadLeft(16, '0');
 
+                return clearPinBlock;
             }
-            return pinblock;
-        }
 
-        public static string CalculatePanBlock(string track2Data)
-        {
-            // Split the track2Data by '=' to extract the portion before '='
-            string[] parts = track2Data.Split('=');
-            string panblock = parts[0].Substring(1);
-            panblock = panblock.Substring(0, panblock.Length - 1);
-            int len = panblock.Length;
-            if (len <= 12)
-                {
-                    // If the length is less than or equal to 12, pad with '0' on the left
-                    panblock = panblock.PadLeft(16, '0');
-                }
-                else if (len >= 13)
-                {
-                    // If the length is greater than or equal to 13, take the last 12 characters and add '0000' in front
-                    panblock = panblock.Substring(len - 12);
-                    panblock = "0000" + panblock;
-                }
-
-                return panblock;
-            
 
             // Handle invalid track2Data format
             throw new ArgumentException("Invalid track2Data format");

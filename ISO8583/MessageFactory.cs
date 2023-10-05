@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
 using System.Text;
 using System.Threading;
 using System.Web;
@@ -17,7 +16,8 @@ namespace ISO
         SignOn,
         SignOff,
         BalanceInquiry,
-        CashWithdrawal
+        CashWithdrawal,
+        Emv
     }
 
     internal class MessageFactory
@@ -34,7 +34,7 @@ namespace ISO
                     message = SignOff();
                     break;
                 case RequiredMsg.BalanceInquiry:
-                    string track2Data = "1234567890123456=22021015432112345678";
+                    string track2Data = "1234567890123456789=22021015432112345678";
                     string pin = "1234"; // Replace with actual PIN
                     string key = "ED2307743BAFC53FA0315C89116BCABF";
                     message = BalanceInquiry(track2Data, pin, key);
@@ -44,6 +44,9 @@ namespace ISO
                     string pin1 = "1234"; // Replace with actual PIN
                     string key1 = "ED2307743BAFC53FA0315C89116BCABF";
                     message = CashWithdrawal(track2Data1,pin1,key1);
+                    break;
+                case RequiredMsg.Emv:
+                    EmvTags.Emv();
                     break;
                 default:
                     Console.Write("Option invalid.");
@@ -100,12 +103,10 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
             return TransactionMessage(requiredDataelements);
-
         }
 
         private static string CashWithdrawal(string track2Data, string pin,string key)
         {
-
             List<DataElement> requiredDataelements = new List<DataElement>();
             string pinBlock = PinPanBlockCalculator.CalculatePinBlock(pin);
             string panBlock = PinPanBlockCalculator.CalculatePanBlock(track2Data);
@@ -122,7 +123,6 @@ namespace ISO
             Console.WriteLine("The Panblock is:" + panBlock);
             Console.WriteLine("The Non-Encrypted PinPan Block is:" + pinPanBlock);
             Console.WriteLine("Encrypted Data: " + encryptedHex);
-
 
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1200", FieldLengthRepresentation = LengthType.Fixed });
@@ -153,14 +153,12 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-049", PositionInTheMsg = 49, Name = "Transaction Currency Code", Value = "784", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-050", PositionInTheMsg = 50, Name = "Reconciliation Currency Code", Value = "123", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
-            
             return TransactionMessage(requiredDataelements);
         }
 
         private static string SignOn()
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
-
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1804", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-007", PositionInTheMsg = 7, Name = "Transmission Date Time", Value = Helper.TransmissionDateTime("MMddhhmmss"), FieldLengthRepresentation = LengthType.Fixed });
@@ -176,7 +174,6 @@ namespace ISO
         private static string SignOff()
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
-
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1804", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-007", PositionInTheMsg = 7, Name = "Transmission Date Time", Value = Helper.TransmissionDateTime("MMddhhmmss"), FieldLengthRepresentation = LengthType.Fixed });
@@ -192,9 +189,7 @@ namespace ISO
         private static string TransactionMessage(List<DataElement> dataElements)
         {
             List<DataElement> sortedDataElementsList = dataElements.OrderBy(x => x.PositionInTheMsg).ToList();
-
             StringBuilder Msg = new StringBuilder();
-
             foreach (DataElement de in sortedDataElementsList)
             {
                 if (de.FieldLengthRepresentation == LengthType.Fixed)
@@ -205,19 +200,13 @@ namespace ISO
                 {
                     Msg.Append(Helper.PrepareVariableFieldData(de));
                 }
-
-
-
                 if (de.PositionInTheMsg == 1)
                 {
                     Msg.Append(PrepareBitMap(sortedDataElementsList, Helper.PrepareBitarrayForBitMap(sortedDataElementsList)));
                 }
             }
-
-
             return Msg.ToString();
         }
-
 
         private static string PrepareBitMap(List<DataElement> sortedDataElementsList, BitArray bits)
         {
@@ -231,9 +220,5 @@ namespace ISO
             }
             return Helper.BitArrayToHexadecimalString(bits);
         }
-
-
-
     }
-
 }

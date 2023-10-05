@@ -38,7 +38,7 @@ namespace ISO8583
             char[] bits = new char[bitArray.Length];
             for (int i = 0; i < bitArray.Length; i++)
             {
-                //    //bitArray[i] = bitArray[i] ? '1' : '0';
+                //bitArray[i] = bitArray[i] ? '1' : '0';
             }
 
             return new string(bits);
