@@ -59,15 +59,15 @@ namespace ISO
         private static string BalanceInquiry(string track2Data, string pin, string key)
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
-            string pinBlock = PinPanBlockCalculator.CalculatePinBlock(pin);
-            string panBlock = PinPanBlockCalculator.CalculatePanBlock(track2Data);
-            string pinPanBlock = PinPanBlockCalculator.CalculatePinPanBlock(pinBlock, panBlock);
-            byte[] dataBytes = PinPanBlockCalculator.HexStringToByteArray(pinPanBlock);
-            byte[] keyBytes = PinPanBlockCalculator.HexStringToByteArray(key);
-            byte[] encryptedData = PinPanBlockCalculator.Encrypt3DES(dataBytes, keyBytes);
+            string pinBlock = PinTranslator.CalculatePinBlock(pin);
+            string panBlock = PinTranslator.CalculatePanBlock(track2Data);
+            string pinPanBlock = PinTranslator.CalculatePinPanBlock(pinBlock, panBlock);
+            byte[] dataBytes = PinTranslator.HexStringToByteArray(pinPanBlock);
+            byte[] keyBytes = PinTranslator.HexStringToByteArray(key);
+            byte[] encryptedData = PinTranslator.Encrypt3DES(dataBytes, keyBytes);
 
             // Convert the encrypted byte array to a hexadecimal string
-            string encryptedHex = PinPanBlockCalculator.ByteArrayToHexString(encryptedData);
+            string encryptedHex = PinTranslator.ByteArrayToHexString(encryptedData);
             // Print the encrypted result
             Console.WriteLine("The Pinblock is:" + pinBlock);
             Console.WriteLine("The Panblock is:" + panBlock);
@@ -108,15 +108,15 @@ namespace ISO
         private static string CashWithdrawal(string track2Data, string pin,string key)
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
-            string pinBlock = PinPanBlockCalculator.CalculatePinBlock(pin);
-            string panBlock = PinPanBlockCalculator.CalculatePanBlock(track2Data);
-            string pinPanBlock = PinPanBlockCalculator.CalculatePinPanBlock(pinBlock, panBlock);
-            byte[] dataBytes = PinPanBlockCalculator.HexStringToByteArray(pinPanBlock);
-            byte[] keyBytes = PinPanBlockCalculator.HexStringToByteArray(key);
-            byte[] encryptedData = PinPanBlockCalculator.Encrypt3DES(dataBytes, keyBytes);
+            string pinBlock = PinTranslator.CalculatePinBlock(pin);
+            string panBlock = PinTranslator.CalculatePanBlock(track2Data);
+            string pinPanBlock = PinTranslator.CalculatePinPanBlock(pinBlock, panBlock);
+            byte[] dataBytes = PinTranslator.HexStringToByteArray(pinPanBlock);
+            byte[] keyBytes = PinTranslator.HexStringToByteArray(key);
+            byte[] encryptedData = PinTranslator.Encrypt3DES(dataBytes, keyBytes);
 
             // Convert the encrypted byte array to a hexadecimal string
-            string encryptedHex = PinPanBlockCalculator.ByteArrayToHexString(encryptedData);
+            string encryptedHex = PinTranslator.ByteArrayToHexString(encryptedData);
 
             // Print the encrypted result
             Console.WriteLine("The Pinblock is:" + pinBlock);

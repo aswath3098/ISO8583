@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ISO
 {
-    class PinPanBlockCalculator
+    class PinTranslator
     {
         public static string CalculatePinBlock(string pin)
         {
