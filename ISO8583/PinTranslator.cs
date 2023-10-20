@@ -12,7 +12,6 @@ namespace ISO
             int len = pin.Length;
             pinblock = ("0" + len.ToString("X") + pin);
             pinblock = pinblock.PadRight(16, 'F');
-
             return pinblock;
         }
         public static string CalculatePanBlock(string track2Data)

@@ -34,13 +34,13 @@ namespace ISO
                     message = SignOff();
                     break;
                 case RequiredMsg.BalanceInquiry:
-                    string track2Data = "1234567890123456789=22021015432112345678";
+                    string track2Data = ";5351290102107506=21112011557206710000?";
                     string pin = "1234"; // Replace with actual PIN
                     string key = "ED2307743BAFC53FA0315C89116BCABF";
                     message = BalanceInquiry(track2Data, pin, key);
                     break;
                 case RequiredMsg.CashWithdrawal:
-                    string track2Data1 = "1234567890123456=22021015432112345678";
+                    string track2Data1 = ";5351290102107506=21112011557206710000?";
                     string pin1 = "1234"; // Replace with actual PIN
                     string key1 = "ED2307743BAFC53FA0315C89116BCABF";
                     message = CashWithdrawal(track2Data1,pin1,key1);
@@ -55,7 +55,6 @@ namespace ISO
 
             return message;
         }
-
         private static string BalanceInquiry(string track2Data, string pin, string key)
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
@@ -73,7 +72,6 @@ namespace ISO
             Console.WriteLine("The Panblock is:" + panBlock);
             Console.WriteLine("The Non-Encrypted PinPan Block is:" + pinPanBlock);
             Console.WriteLine("Encrypted Data: " + encryptedHex);
-            
             requiredDataelements.Add(new DataElement { Id = "Header", PositionInTheMsg = -1, Name = "Header", Value = "ISO004000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-001", PositionInTheMsg = 1, Name = "MTI", Value = "1200", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-002", PositionInTheMsg = 2, Name = "PAN", Value = "1234567890123456", FieldLengthRepresentation = LengthType.LL });
@@ -91,7 +89,7 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-026", PositionInTheMsg = 26, Name = "Card Acceptor Business Code", Value = "6010", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-030", PositionInTheMsg = 30, Name = "Original Amounts", Value = "0000000100000001000000", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-032", PositionInTheMsg = 32, Name = "Acquirer Institution Identification Code", Value = "98765432109", FieldLengthRepresentation = LengthType.LL });
-            requiredDataelements.Add(new DataElement { Id = "DE-035", PositionInTheMsg = 35, Name = "Track 2 Data", Value = "1234567890123456=22021015432112345678", FieldLengthRepresentation = LengthType.LL });
+            requiredDataelements.Add(new DataElement { Id = "DE-035", PositionInTheMsg = 35, Name = "Track 2 Data", Value = ";5351290102107506=21112011557206710000?", FieldLengthRepresentation = LengthType.LL });
             requiredDataelements.Add(new DataElement { Id = "DE-037", PositionInTheMsg = 37, Name = "Retrieval Reference Number", Value = "ABC123XYZ456", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-038", PositionInTheMsg = 38, Name = "Approval Code", Value = "ABC123", FieldLengthRepresentation = LengthType.Fixed });
             requiredDataelements.Add(new DataElement { Id = "DE-039", PositionInTheMsg = 39, Name = "Action Code", Value = "000", FieldLengthRepresentation = LengthType.Fixed });
@@ -104,7 +102,6 @@ namespace ISO
             requiredDataelements.Add(new DataElement { Id = "DE-052", PositionInTheMsg = 52, Name = "Personal Identification Number (PIN) Data", Value = encryptedHex, FieldLengthRepresentation = LengthType.Fixed });
             return TransactionMessage(requiredDataelements);
         }
-
         private static string CashWithdrawal(string track2Data, string pin,string key)
         {
             List<DataElement> requiredDataelements = new List<DataElement>();
