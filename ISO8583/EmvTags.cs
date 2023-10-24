@@ -32,6 +32,7 @@ class EmvTags
         try
         {
             string emvData = File.ReadAllText(filePath);
+            //string emvData = "9F02060000035000009F03060000000000009F1A0206825F2A0206829A032310119C01019F37045812D32E82027C009F36027778";
             List<TLV> emvTags = new List<TLV>
             {
                 new TLV { Id = "9F06", Name = "Application Identifier (AID)",minLen=5,maxLen=16,TagLengthRep=TagLengthType.Min_Max},
