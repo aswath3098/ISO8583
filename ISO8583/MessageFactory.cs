@@ -4,8 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Web;
 using static Programs;
 
 namespace ISO
@@ -17,9 +15,9 @@ namespace ISO
         SignOff,
         BalanceInquiry,
         CashWithdrawal,
-        Emv
+        Emv,
+        Arqc
     }
-
     internal class MessageFactory
     {
         internal static string ConstructMessage(RequiredMsg reqMsg)
@@ -48,6 +46,11 @@ namespace ISO
                 case RequiredMsg.Emv:
                     EmvTags.Emv();
                     break;
+
+                case RequiredMsg.Arqc:
+                    Arqc.ARQC();
+                    break;
+
                 default:
                     Console.Write("Option invalid.");
                     break;

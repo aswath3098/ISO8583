@@ -8,27 +8,63 @@ using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities.Encoders;
 using System.Security.Cryptography;
+using System.IO;
 
 namespace ISO8583
 {
+    class ARQC
+    {
+        public string Name { get; set; }
+        public string Id { get; set; }   
+        public string Value { get; set; }
+    }
     class Arqc
     {
-        public static void ARQC(string ARQCdata)
+
+        public static void ARQC()
         {
-            string mdk = "7B3D21A4F9C2E0563A9D5B1F8E4C7B9D";
+            List<ARQC> arqclist = new List<ARQC>
+            {
+                new ARQC { Id = "9F02", Name = "Amount Authorized", Value = "000000100000" },
+                new ARQC { Id = "9F03", Name = "Amount, Other ", Value = "000000000000" },
+                new ARQC { Id = "9F1A", Name = "Terminal Country Code ", Value = "0682" },
+                new ARQC { Id = "95", Name = "Terminal Verification Result ", Value = "0000000000" },
+                new ARQC { Id = "5F2A", Name = "Transaction Currency Code ", Value = "0682" },
+                new ARQC { Id = "9A", Name = "Transaction Date", Value = "231023" },
+                new ARQC { Id = "9C", Name = "Transaction Type", Value = "31" },
+               
+
+
+                //Keeps Changing 
+                new ARQC { Id = "9F37", Name = "Unpredictable Number", Value = "01613B75" },
+                new ARQC { Id = "82", Name = "Application Interchange Profile", Value = "3800" },
+
+               new ARQC { Id = "9F36", Name = "Application Transaction Counter (ATC)", Value = "000F" },
+
+            //new TLV { Id = "9F10", Name = "Issuer Application Data", Value = "3800" };  CVR(011203A0880000)
+        };
+            string mdk = "6E46FE409DF704BCA75E7FF270B65E73";
             string dki = "01";
-            string track2data = ";5351290102107506=21112011557206710000?";
+            string track2data = ";4226810000000010=21112011557206710000?";
             string cardnum = Cardnum(track2data);
             string seqno = dki;
             string concatenate = cardnum + seqno;
             concatenate = concatenate.Substring(2);
             string UDK_A = Encrypt3DES(concatenate, mdk);
+            Console.WriteLine(UDK_A);
             string xorvalue = XOR(concatenate, "ffffffffffffffff");
             string UDK_B = Encrypt3DES(xorvalue, mdk);
+            Console.WriteLine(UDK_B);
             string Final_UDK = UDK_A + UDK_B;
-            string sessionkey = Final_UDK;
+            Console.WriteLine(Final_UDK);
+            string sessionkey = Session_Key(Final_UDK );
             Console.WriteLine("The sessionkey is " + sessionkey);
-            Console.WriteLine("The Generated ARQC is " + Operation(ARQCdata, "754CA10145294FE352EC852F3DCE7C5B"));
+            string str = "";
+            foreach (ARQC i in arqclist)
+            {
+                str = str + i.Value;
+            }
+            Console.WriteLine("The Generated ARQC is " + Operation(str, sessionkey));
         }
 
         private static string Cardnum(string track2data)
@@ -89,9 +125,10 @@ namespace ISO8583
         }
         private static string Session_Key(string Final_UDk)
         {
-            string R1 = "0001F00000000000";
-            string R2 = "00010F0000000000";
+            string R1 = "000FF00000000000";
+            string R2 = "000F0F0000000000";
             string SKA = Encrypt3DES(R1, Final_UDk);
+            //Console.WriteLine(SKA);
             string SKB = Encrypt3DES(R2, Final_UDk);
             string Sessionkey = SKA + SKB;
             return Sessionkey;
@@ -135,15 +172,25 @@ namespace ISO8583
         private static string Operation(string ARQCdata, string sessionkey)
         {
             List<string> chunks = new List<string>();
-            ARQCdata = ARQCdata + "A00003240000" + "000000" + "80";
+            ARQCdata = ARQCdata + "011203A0880000";
+            Console.WriteLine("hai"+ARQCdata);
             int len = ARQCdata.Length;
             int rem = len % 8;
             bool rep = true;
+
             while (rep)
             {
+                if (rem == 0)
+                {
+                    ARQCdata = ARQCdata + "80" + "00000000000000";
+                    // Console.WriteLine("ARQCdata1 :"+ARQCdata);
+                    rep = false;
+
+                }
                 if (rem != 0)
                 {
                     ARQCdata = ARQCdata + "0";
+                    //Console.WriteLine("ARQCdata2: "+ARQCdata);
                     len = ARQCdata.Length;
                     rem = len % 8;
                 }
@@ -155,8 +202,6 @@ namespace ISO8583
             Console.WriteLine("The CDOL data is " + ARQCdata);
             string session1 = sessionkey.Substring(0, 16);
             string session2 = sessionkey.Substring(16);
-            int count = CountOccurrences(ARQCdata);
-
            
             for (int i = 0; i < ARQCdata.Length; i += 16)
             {
@@ -165,6 +210,7 @@ namespace ISO8583
             }
             string DE = DESEncrypt(chunks[0], session1).Substring(0, 16);
             int a = 1;
+            int count = CountOccurrences(ARQCdata);
             for (int i = 0; i < count - 1; i++)
             {
                 string XO = XOR(DE, chunks[a]);
@@ -172,14 +218,27 @@ namespace ISO8583
                 for (int j = 0; j < count - 1; j++)
                 {
                     DE = DESEncrypt(XO, session1).Substring(0, 16);
-                    break;
+
                 }
 
             }
-            string DD = DESDecrypt(DE, session2 ).Substring(0, 16);
+            string DD = DESDecrypt(DE, session2).Substring(0, 16);
             string Arqc = DESEncrypt(DD, session1).Substring(0, 16);
-            return Arqc;
-            //Console.WriteLine("Arqc Data :" + Arqc);
+            Console.WriteLine("Arqc Data :" + Arqc);
+            Console.ReadKey();
+        
+        
+        string Desdata = DESEncrypt(ARQCdata, sessionkey);
+            Console.WriteLine(Desdata);
+            for (int i = 0; i < Desdata.Length; i += 16)
+            {
+                string chunk = Desdata.Substring(i, Math.Min(16, Desdata.Length - i));
+                chunks.Add(chunk);
+            }
+            int lenn = chunks.Count;
+            string str = DESDecrypt(chunks[lenn - 2], session2);
+            string str1 = DESEncrypt(str, session1);
+            return str1.Substring(0, 16);
         }
         public static int CountOccurrences(string data)
         {
@@ -187,5 +246,6 @@ namespace ISO8583
             int count = len / 16;
             return count;
         }
+
     }
 }
