@@ -51,12 +51,12 @@ namespace ISO8583
             string concatenate = cardnum + seqno;
             concatenate = concatenate.Substring(2);
             string UDK_A = Encrypt3DES(concatenate, mdk);
-            Console.WriteLine(UDK_A);
+           
             string xorvalue = XOR(concatenate, "ffffffffffffffff");
             string UDK_B = Encrypt3DES(xorvalue, mdk);
-            Console.WriteLine(UDK_B);
+           
             string Final_UDK = UDK_A + UDK_B;
-            Console.WriteLine(Final_UDK);
+           
             string sessionkey = Session_Key(Final_UDK );
             Console.WriteLine("The sessionkey is " + sessionkey);
             string str = "";
@@ -173,7 +173,6 @@ namespace ISO8583
         {
             List<string> chunks = new List<string>();
             ARQCdata = ARQCdata + "011203A0880000";
-            Console.WriteLine("hai"+ARQCdata);
             int len = ARQCdata.Length;
             int rem = len % 8;
             bool rep = true;
